@@ -1,24 +1,14 @@
-var socket = io();
+
+var socket = io(); // variable to communicate with server
+//invokes when client connect to server
 socket.on('connect', function () {
 	console.log('Connected to server');
-
-	// socket.emit('createEmail', {
-	// 	to: 'sirojiddinov.1881@mail.ru',
-	// 	text: 'I am good'
-	// });
-
-	socket.emit('createMessage', {
-		to: 'Saidamir',
-		text: 'I am good. what about you? '
-	});
 });
-// socket.on('newEmail', function(email){
-// 	console.log('New email', email);
-// });
+// consoles when new message comes from server
 socket.on('newMessage', function(msg) {
 	console.log('New mesage: ', msg);
 });
-
+//invokes when disconnection occurs from server
 socket.on('disconnect', function () {
 	console.log('Disconnect from server');
 });
