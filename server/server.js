@@ -2,7 +2,8 @@ const express = require('express'); // express  library
 const path = require('path'); // libaray to create relative path of file
 const http = require('http'); //http library to create server
 const socketIO = require('socket.io'); //registering socketIO library
-const {generateMessage} = require('./utils/message'); // generates message
+const {generateMessage, generateLocationMessage} = require('./utils/message'); // generates message
+
 var port = process.env.PORT || 3000;
 var publicPath = path.join(__dirname, '../public'); // creates relative path to public folder
 var app = express(); //registering express server
@@ -24,6 +25,10 @@ io.on("connection", (socket) => {
 		io.emit('newMessage', generateMessage(msg.from, msg.text));
 
 		callback('This is from server. ');
+	});
+
+	socket.on('createLocationMessage', function (coords) {
+		io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude));
 	});
 	// invokes when user is disconnected
 	socket.on('disconnect', () => {
