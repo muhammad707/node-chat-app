@@ -2,7 +2,7 @@ const express = require('express'); // express  library
 const path = require('path'); // libaray to create relative path of file
 const http = require('http'); //http library to create server
 const socketIO = require('socket.io'); //registering socketIO library
-
+const {generateMessage} = require('./utils/message'); // generates message
 var port = process.env.PORT || 3000;
 var publicPath = path.join(__dirname, '../public'); // creates relative path to public folder
 var app = express(); //registering express server
@@ -13,27 +13,15 @@ io.on("connection", (socket) => {
 	console.log('New user connected');
 
 	// greeting to new user
-	socket.emit('newMessage', {
-		from: 'Admin',
-		text: 'Welcome to the chat app',
-		createdAt: new Date().getTime()
-	});
+	socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app'));
 
 	// informs others about new user
-	socket.broadcast.emit('newMessage', {
-		from: 'Admin',
-		text: 'New user joined',
-		createdAt: new Date().getTime()
-	});
+	socket.broadcast.emit('newMessage', generateMessage('Admin', 'New User joined'));
 	// listens create message emitter
 	socket.on('createMessage', function(msg) {
-		console.log('Message created: ', msg);
+		//console.log('Message created: ', msg);
 		// Event emitter for al users
-		io.emit('newMessage', {  // when new message comes it emits for all users
-			from: msg.from, // sender 
-			text: msg.text, //actual message
-			createdAt: new Date().getTime() // date of message
-		});
+		io.emit('newMessage', generateMessage(msg.from, msg.text));
 	});
 	// invokes when user is disconnected
 	socket.on('disconnect', () => {
