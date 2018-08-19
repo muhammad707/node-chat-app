@@ -18,10 +18,12 @@ io.on("connection", (socket) => {
 	// informs others about new user
 	socket.broadcast.emit('newMessage', generateMessage('Admin', 'New User joined'));
 	// listens create message emitter
-	socket.on('createMessage', function(msg) {
-		//console.log('Message created: ', msg);
+	socket.on('createMessage', function(msg, callback) {
+		console.log('Message created: ', msg);
 		// Event emitter for al users
 		io.emit('newMessage', generateMessage(msg.from, msg.text));
+
+		callback('This is from server. ');
 	});
 	// invokes when user is disconnected
 	socket.on('disconnect', () => {
