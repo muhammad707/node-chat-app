@@ -7,24 +7,36 @@ socket.on('connect', function () {
 // displays when new message comes from server
 socket.on('newMessage', function(msg) {
 	var formattedTime = moment(msg.createdAt).format('h:mm a');
-
 	console.log('New mesage: ', msg);
-	var li = jQuery('<li></li>');
-	li.text(`${msg.from} ${formattedTime}: ${msg.text}`);
+	// var li = jQuery('<li></li>');
+	// li.text(`${msg.from} ${formattedTime}: ${msg.text}`);
 
-	jQuery('#messages').append(li);
+	var template = jQuery('#message-template').html();
+	var html =  Mustache.render(template, {
+		text: msg.text,
+		from: msg.from,
+		createdAt: formattedTime
+	});
+
+	jQuery('#messages').append(html);
 });
 
 // event listener to renders current location of user
 socket.on('newLocationMessage', function (msg) {
 
 	var formattedTime = moment(msg.createdAt).format('h:mm a');
-	var li = jQuery('<li></li>'); 
-	var a = jQuery('<a target=_blank>My current location</a>');
-	li.text(`${msg.from} ${formattedTime}: `);
-	a.attr('href', msg.url);
-	li.append(a);
-	jQuery('#messages').append(li);
+	// var li = jQuery('<li></li>'); 
+	// var a = jQuery('<a target=_blank>My current location</a>');
+	// li.text(`${msg.from} ${formattedTime}: `);
+	// a.attr('href', msg.url);
+	// li.append(a);
+	var template = jQuery('#location-message-template').html();
+	var html =  Mustache.render(template, {
+		url: msg.url,
+		from: msg.from,
+		createdAt: formattedTime
+	});
+	jQuery('#messages').append(html);
 
 });
 //invokes when disconnection occurs from server
