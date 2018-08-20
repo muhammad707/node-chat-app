@@ -1,5 +1,22 @@
 
 var socket = io(); // variable to communicate with server
+
+// Utility function that causes autoscrolling
+function scrollToBottom () {
+	var messages = jQuery('#messages');  // takes messages list 
+	var newMessage = messages.children('li:last-child'); // takes last message
+	var clientHeight = messages.prop('clientHeight'); // takes current view height
+	var scrollTop  = messages.prop('scrollTop'); // takes height of scrolled messages
+	var scrollHeight = messages.prop('scrollHeight'); //takes whole messages height
+	var newMessageHeight = newMessage.innerHeight(); // takes new message inner height
+	var lastMessageHeight = newMessage.prev().innerHeight();
+
+	if ((clientHeight + scrollTop + newMessageHeight + lastMessageHeight) >= scrollHeight) {
+		messages.scrollTop(scrollHeight);
+		console.log('Should scroll');
+	}
+}
+
 //invokes when client connect to server
 socket.on('connect', function () {
 	console.log('Connected to server');
@@ -7,7 +24,7 @@ socket.on('connect', function () {
 // displays when new message comes from server
 socket.on('newMessage', function(msg) {
 	var formattedTime = moment(msg.createdAt).format('h:mm a');
-	console.log('New mesage: ', msg);
+	//console.log('New mesage: ', msg);
 	// var li = jQuery('<li></li>');
 	// li.text(`${msg.from} ${formattedTime}: ${msg.text}`);
 
@@ -19,6 +36,7 @@ socket.on('newMessage', function(msg) {
 	});
 
 	jQuery('#messages').append(html);
+	scrollToBottom();
 });
 
 // event listener to renders current location of user
@@ -37,6 +55,7 @@ socket.on('newLocationMessage', function (msg) {
 		createdAt: formattedTime
 	});
 	jQuery('#messages').append(html);
+	scrollToBottom();
 
 });
 //invokes when disconnection occurs from server
