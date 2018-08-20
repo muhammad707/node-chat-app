@@ -24,9 +24,10 @@ io.on("connection", (socket) => {
 		// Event emitter for al users
 		io.emit('newMessage', generateMessage(msg.from, msg.text));
 
-		callback('This is from server. ');
+		callback();
 	});
 
+	//generates user's location and sends to browser
 	socket.on('createLocationMessage', function (coords) {
 		io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude));
 	});
