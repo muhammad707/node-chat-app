@@ -3,7 +3,7 @@ const path = require('path'); // libaray to create relative path of file
 const http = require('http'); //http library to create server
 const socketIO = require('socket.io'); //registering socketIO library
 const {generateMessage, generateLocationMessage} = require('./utils/message'); // generates message
-
+const {isRealString} = require('./utils/validate');
 var port = process.env.PORT || 3000;
 var publicPath = path.join(__dirname, '../public'); // creates relative path to public folder
 var app = express(); //registering express server
@@ -18,6 +18,14 @@ io.on("connection", (socket) => {
 
 	// informs others about new user
 	socket.broadcast.emit('newMessage', generateMessage('Admin', 'New User joined'));
+
+	// Event listener to validate user to enter room 
+	socket.on('join', (params, callback) => {
+		if (!isRealString(params.name) || !isRealString(params.room)) {
+			callback('Name and room name are required.');
+		}
+	});
+
 	// listens create message emitter
 	socket.on('createMessage', function(msg, callback) {
 		console.log('Message created: ', msg);

@@ -19,7 +19,16 @@ function scrollToBottom () {
 
 //invokes when client connect to server
 socket.on('connect', function () {
-	console.log('Connected to server');
+	var params = jQuery.deparam(window.location.search);
+
+	socket.emit('join', params, function (err) {
+		if (err) {
+			alert(err);
+			window.location.href = '/';
+		} else {
+			console.log('No error');
+		}
+	});
 });
 // displays when new message comes from server
 socket.on('newMessage', function(msg) {
