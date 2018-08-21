@@ -13,17 +13,23 @@ var io = socketIO(server); // creates server client communication via io
 io.on("connection", (socket) => {
 	console.log('New user connected');
 
-	// greeting to new user
-	socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app'));
-
-	// informs others about new user
-	socket.broadcast.emit('newMessage', generateMessage('Admin', 'New User joined'));
 
 	// Event listener to validate user to enter room 
 	socket.on('join', (params, callback) => {
 		if (!isRealString(params.name) || !isRealString(params.room)) {
 			callback('Name and room name are required.');
 		}
+
+		socket.join(params.room);
+
+			// greeting to new user
+	socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app'));
+
+	// informs others about new user
+	socket.broadcast.to(params.room).emit('newMessage', generateMessage('Admin',`${params.name} joined`));
+
+
+
 	});
 
 	// listens create message emitter
