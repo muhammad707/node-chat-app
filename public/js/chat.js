@@ -39,8 +39,8 @@ socket.on('newMessage', function(msg) {
 
 	var template = jQuery('#message-template').html();
 	var html =  Mustache.render(template, {
-		text: msg.text,
 		from: msg.from,
+		text: msg.text,
 		createdAt: formattedTime
 	});
 
@@ -82,12 +82,11 @@ socket.on('updateUsersList', function (users) {
 	jQuery('#users').html(ol);
 });
 
-var messageTextbox =  jQuery('[name=messages]');
+var messageTextbox = jQuery('[name=messages]');
 jQuery('#form-messages').on('submit', function(e) {
 	e.preventDefault();
 
 	socket.emit('createMessage', {
-		from:'User',
 		text: messageTextbox.val()
 	}, function() {
 		messageTextbox.val('');

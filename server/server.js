@@ -40,16 +40,26 @@ io.on("connection", (socket) => {
 
 	// listens create message emitter
 	socket.on('createMessage', function(msg, callback) {
-		console.log('Message created: ', msg);
+		var user = users.getUser(socket.id);
+
+		if (user && isRealString(msg.text)) {
+			io.to(user.room).emit('newMessage', generateMessage(user.name, msg.text));
+		}
 		// Event emitter for al users
-		io.emit('newMessage', generateMessage(msg.from, msg.text));
+		
 
 		callback();
 	});
 
 	//generates user's location and sends to browser
 	socket.on('createLocationMessage', function (coords) {
-		io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude));
+
+		var user = users.getUser(socket.id);
+
+		if(user) {
+			io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
+		}
+		
 	});
 	// invokes when user is disconnected
 	socket.on('disconnect', () => {
