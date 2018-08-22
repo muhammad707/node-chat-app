@@ -4,12 +4,16 @@ const http = require('http'); //http library to create server
 const socketIO = require('socket.io'); //registering socketIO library
 const {generateMessage, generateLocationMessage} = require('./utils/message'); // generates message
 const {isRealString} = require('./utils/validate');
+const {Users} = require('./utils/users.js');
+
 var port = process.env.PORT || 3000;
 var publicPath = path.join(__dirname, '../public'); // creates relative path to public folder
 var app = express(); //registering express server
 app.use(express.static(publicPath)); // renders index.html file to browser
 var server = http.createServer(app); 
 var io = socketIO(server); // creates server client communication via io
+var users = new Users();
+
 io.on("connection", (socket) => {
 	console.log('New user connected');
 
@@ -17,18 +21,20 @@ io.on("connection", (socket) => {
 	// Event listener to validate user to enter room 
 	socket.on('join', (params, callback) => {
 		if (!isRealString(params.name) || !isRealString(params.room)) {
-			callback('Name and room name are required.');
+			return callback('Name and room name are required.');
 		}
 
 		socket.join(params.room);
+		users.removeUser(socket.id);
+		users.addUser(socket.id, params.name, params.room);
+
+		io.to(params.room).emit('updateUsersList', users.getUserList(params.room));
 
 			// greeting to new user
 	socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app'));
 
 	// informs others about new user
 	socket.broadcast.to(params.room).emit('newMessage', generateMessage('Admin',`${params.name} joined`));
-
-
 
 	});
 
@@ -47,7 +53,12 @@ io.on("connection", (socket) => {
 	});
 	// invokes when user is disconnected
 	socket.on('disconnect', () => {
-		console.log('User was disconnected');
+		var user = users.removeUser(socket.id);
+
+		if (user) {
+			io.to(user.room).emit('updateUsersList', users.getUserList(user.room));
+			io.to(user.room).emit('newMessage', generateMessage('Admin', `${user.name} has left`));
+		}
 	});
 });
 server.listen(port, () => {
